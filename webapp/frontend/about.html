@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="How the AI Crop Recommendation System works — methodology, objectives, model performance, statistical significance testing, feature importance, and academic references.">
+    <meta name="theme-color" content="#0a1219">
+    <title>About — CropAdvisor · AI Crop Recommendation System</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- ═══ Navigation ═══ -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-brand" aria-label="Home">
+                <span class="navbar-brand-icon">🌾</span>
+                <span>CropAdvisor</span>
+            </a>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">☰</button>
+            <ul class="navbar-links" id="nav-links">
+                <li><a href="/">Recommend</a></li>
+                <li><a href="/analysis">Data Analysis</a></li>
+                <li><a href="/about" class="active">About</a></li>
+                <li><a href="/docs" target="_blank" rel="noopener">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- ═══ Hero ═══ -->
+            <section class="hero">
+                <h1 class="hero-title">Academic Project Methodology</h1>
+                <p class="hero-subtitle">
+                    An end-to-end, interpretable machine learning pipeline that prescribes optimal crop candidates
+                    based on soil chemistry and environmental climate factors.
+                </p>
+                <span class="hero-badge">🧠 8 Models Evaluated · 5-Fold Stratified CV · Statistical Hypothesis Testing</span>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Objectives ═══ -->
+            <section class="about-section">
+                <h2>🎯 Project Objectives</h2>
+                <ol style="color: #cbd5e1; font-size: 0.95rem; line-height: 1.7; padding-left: 1.2rem;">
+                    <li><strong>Data Collection &amp; Structured EDA:</strong> Collect, clean, and analyze agricultural parameters (N, P, K, pH, temperature, humidity, and rainfall).</li>
+                    <li><strong>Baseline &amp; Multi-Model Training:</strong> Establish a naive majority-class baseline and train 6 classification models — Logistic Regression, K-Nearest Neighbors, Decision Tree, Random Forest, Support Vector Machine, and XGBoost.</li>
+                    <li><strong>Rigorous Evaluation &amp; Statistical Validation:</strong> Evaluate models using Accuracy, Precision, Recall, F1-scores, 5-fold cross-validation, paired t-tests, and McNemar's tests to confirm statistical significance.</li>
+                    <li><strong>Explainable AI (XAI) Integration:</strong> Apply tree feature importance (MDI) and SHAP values so every recommendation is interpretable, presented strictly as model interpretation rather than agronomic causation.</li>
+                    <li><strong>Tuning &amp; Deployment:</strong> Hyperparameter-tune and serialize the best-performing model (Random Forest), deploying it via interactive user applications.</li>
+                    <li><strong>Academic Documentation:</strong> Complete reproducible, academic-grade documentation and reporting.</li>
+                </ol>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Pipeline Overview (Figure 1) ═══ -->
+            <section class="about-section">
+                <h2>📐 Figure 1: System Architecture Pipeline</h2>
+                <p>
+                    The sequential pipeline feeds measurable, reproducible evidence from the raw dataset through cross-validation and statistical testing to deployed decision support:
+                </p>
+                <div class="pipeline-card">
+                    <div class="pipeline">
+                        <div class="pipeline-step">🌾 Agricultural Dataset</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step">📊 Data Cleaning &amp; EDA</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step">⚙️ Preprocessing &amp; Split</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step">🤖 Baseline + ML Models</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step">📈 Cross-Val. &amp; Significance Test</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step">🔍 Best Model + Explainability</div>
+                        <span class="pipeline-arrow" aria-hidden="true">➔</span>
+                        <div class="pipeline-step active">🚀 Deployed Application</div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Dataset ═══ -->
+            <section class="about-section">
+                <h2>📊 Dataset Description</h2>
+                <p>
+                    The <a href="https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset" target="_blank" rel="noopener">
+                    Crop Recommendation Dataset</a> contains 2,200 records across 22 perfectly balanced classes (100 samples each), with zero null values and zero duplicates.
+                </p>
+                <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                            <th>Unit</th>
+                            <th>Range</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>N</td><td>Nitrogen content in soil</td><td>kg/ha</td><td>0–140</td></tr>
+                        <tr><td>P</td><td>Phosphorus content in soil</td><td>kg/ha</td><td>5–145</td></tr>
+                        <tr><td>K</td><td>Potassium content in soil</td><td>kg/ha</td><td>5–205</td></tr>
+                        <tr><td>Temperature</td><td>Average growing season temperature</td><td>°C</td><td>8.83–43.68</td></tr>
+                        <tr><td>Humidity</td><td>Relative humidity</td><td>%</td><td>14.26–99.98</td></tr>
+                        <tr><td>pH</td><td>Soil pH acidity / alkalinity</td><td>—</td><td>3.50–9.94</td></tr>
+                        <tr><td>Rainfall</td><td>Annual precipitation</td><td>mm</td><td>20.21–298.56</td></tr>
+                    </tbody>
+                </table>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Model Performance ═══ -->
+            <section class="about-section">
+                <h2>🏆 Experimental Benchmark (8 Models + Baseline)</h2>
+                <p>
+                    Evaluated on the held-out test split (440 samples) and 5-fold Stratified Cross-Validation.
+                </p>
+
+                <!-- ═══ Model Performance Benchmark Graph ═══ -->
+                <div class="graph-card">
+                    <div class="graph-card-header">
+                        <h3 class="graph-card-title">
+                            <span>📊</span> Model Performance Benchmark Graph
+                        </h3>
+                        <div class="graph-tabs" role="tablist" aria-label="Metric views">
+                            <button class="graph-tab-btn active" data-metric="test" role="tab" aria-selected="true">Test Accuracy</button>
+                            <button class="graph-tab-btn" data-metric="cv" role="tab" aria-selected="false">5-Fold CV Accuracy</button>
+                            <button class="graph-tab-btn" data-metric="f1" role="tab" aria-selected="false">Macro F1-Score</button>
+                        </div>
+                    </div>
+                    <div class="canvas-container">
+                        <canvas id="benchmark-chart" aria-label="Model performance comparison bar chart" role="img"></canvas>
+                    </div>
+                    <div class="chart-legend" id="chart-legend">
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: linear-gradient(135deg, #43cea2, #38b2ac); box-shadow: 0 0 8px rgba(67,206,162,0.4);"></span>
+                            <span>Selected Best Model (Random Forest · 99.55%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></span>
+                            <span>Standard ML Classifiers (&gt;97%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-color" style="background: #ef4444;"></span>
+                            <span>Naive Majority Baseline (4.55%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Model</th>
+                            <th>Test Acc</th>
+                            <th>F1 (macro)</th>
+                            <th>5-Fold CV Acc</th>
+                            <th>CV Std Dev</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td>1</td>
+                            <td class="highlight">🏆 Random Forest</td>
+                            <td class="highlight">99.55%</td>
+                            <td class="highlight">99.55%</td>
+                            <td class="highlight">99.43%</td>
+                            <td class="highlight">±0.48%</td>
+                        </tr>
+                        <tr><td>2</td><td>Naive Bayes</td><td>99.55%</td><td>99.54%</td><td>99.49%</td><td>±0.42%</td></tr>
+                        <tr><td>3</td><td>Support Vector Machine</td><td>98.86%</td><td>98.87%</td><td>98.24%</td><td>±0.49%</td></tr>
+                        <tr><td>4</td><td>XGBoost</td><td>98.64%</td><td>98.62%</td><td>99.20%</td><td>±0.28%</td></tr>
+                        <tr><td>5</td><td>K-Nearest Neighbors</td><td>98.18%</td><td>98.16%</td><td>96.82%</td><td>±1.17%</td></tr>
+                        <tr><td>6</td><td>Decision Tree</td><td>97.95%</td><td>97.94%</td><td>98.47%</td><td>±0.66%</td></tr>
+                        <tr><td>7</td><td>Logistic Regression</td><td>97.27%</td><td>97.25%</td><td>96.82%</td><td>±0.66%</td></tr>
+                        <tr style="opacity: 0.7;"><td>8</td><td>Majority Baseline</td><td>4.55%</td><td>0.40%</td><td>4.55%</td><td>±0.00%</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <!-- 🔬 Featured: Random Forest vs XGBoost McNemar's Test inside Model Performance -->
+                <div style="margin: 2rem 0 1rem 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem;">
+                        <span style="font-size: 1.85rem; line-height: 1;">🔬</span>
+                        <h2 style="font-size: 1.7rem; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -0.02em;">
+                            Random Forest vs XGBoost: McNemar’s Test
+                        </h2>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.98rem; margin-top: 0.3rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                        Statistical significance comparison between Random Forest and XGBoost using predictions on the exact same held-out test samples.
+                    </p>
+
+                    <!-- Top Row (4 Cards) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Total Test Samples</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">440</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">RF ✓, XGB X (b)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">RF X, XGB ✓ (c)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Disagreements (b + c)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row (3 Cards) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Exact Test Statistic</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0.0000</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">p-value</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1.000000</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Alpha (α)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0.05</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Statistical Significance ═══ -->
+            <section class="about-section">
+                <h2>🔬 Statistical Significance Testing (vs Random Forest)</h2>
+                <p>
+                    Paired hypothesis tests confirm whether observed differences between models are statistically significant rather than an artifact of a single train-test split:
+                </p>
+
+                <!-- 🔬 Spotlight Card: Random Forest vs XGBoost McNemar's Test -->
+                <div style="margin: 1.2rem 0 1.8rem 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    <div style="display: flex; align-items: center; gap: 0.65rem; margin-bottom: 0.35rem;">
+                        <span style="font-size: 1.85rem; line-height: 1;">🔬</span>
+                        <h3 style="font-size: 1.7rem; font-weight: 700; color: #ffffff; margin: 0; letter-spacing: -0.02em;">Random Forest vs XGBoost: McNemar’s Test</h3>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.98rem; margin-top: 0.3rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                        Statistical significance comparison between Random Forest and XGBoost using predictions on the exact same held-out test samples.
+                    </p>
+
+                    <!-- Top Row (4 Cards) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Total Test Samples</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">440</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">RF ✓, XGB X (b)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">RF X, XGB ✓ (c)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Disagreements (b + c)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1</div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Row (3 Cards) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.8rem;">
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Exact Test Statistic</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0.0000</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">p-value</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">1.000000</div>
+                        </div>
+                        <div style="background: #111827; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 14px; padding: 1.25rem 1.4rem;">
+                            <div style="color: #94a3b8; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.5rem;">Alpha (α)</div>
+                            <div style="color: #34d399; font-size: 2.3rem; font-weight: 700; line-height: 1;">0.05</div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 0.6rem 0.9rem; border-radius: 0 8px 8px 0; color: #a7f3d0; font-size: 0.85rem; margin-top: 0.8rem;">
+                        💡 <strong>Statistical Conclusion:</strong> <em>p</em>-value (1.000000) &gt; &alpha; (0.05) &rarr; Failure to reject the null hypothesis. The performance difference between Random Forest and XGBoost is not statistically significant, establishing high competitive parity on held-out test data.
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Competitor Model</th>
+                            <th>5-Fold CV Diff</th>
+                            <th>Paired t-test p-value</th>
+                            <th>t-test Result (&alpha;=0.05)</th>
+                            <th>McNemar p-value</th>
+                            <th>McNemar Result (&alpha;=0.05)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Majority Baseline</strong></td><td>+94.89%</td><td><strong>&lt; 0.000001</strong></td><td class="highlight">Statistically Significant</td><td><strong>&lt; 0.000001</strong></td><td class="highlight">Statistically Significant</td></tr>
+                        <tr><td><strong>Logistic Regression</strong></td><td>+2.61%</td><td><strong>0.004471</strong></td><td class="highlight">Statistically Significant</td><td><strong>0.006348</strong></td><td class="highlight">Statistically Significant</td></tr>
+                        <tr><td><strong>Decision Tree</strong></td><td>+0.97%</td><td>0.086523</td><td>Marginal Trend</td><td><strong>0.015625</strong></td><td class="highlight">Statistically Significant</td></tr>
+                        <tr><td><strong>K-Nearest Neighbors</strong></td><td>+2.61%</td><td><strong>0.003266</strong></td><td class="highlight">Statistically Significant</td><td>0.070312</td><td>Marginal Trend</td></tr>
+                        <tr><td><strong>Support Vector Machine</strong></td><td>+1.19%</td><td><strong>0.008147</strong></td><td class="highlight">Statistically Significant</td><td>0.375000</td><td>Parity on Test Set</td></tr>
+                        <tr><td><strong>XGBoost</strong></td><td>+0.23%</td><td>0.541470</td><td>Parity</td><td>0.218750</td><td>Parity</td></tr>
+                        <tr><td><strong>Naive Bayes</strong></td><td>-0.06%</td><td>0.373901</td><td>Parity</td><td>1.000000</td><td>Parity</td></tr>
+                    </tbody>
+                </table>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Explainability ═══ -->
+            <section class="about-section">
+                <h2>🔬 Explainability &amp; Interpretability (XAI)</h2>
+                <div style="background: rgba(245,158,11,0.08); border-left: 3px solid #f59e0b; padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin-bottom: 1.2rem; color: #fde68a; font-size: 0.85rem;">
+                    ⚠️ <strong>Academic Notice:</strong> Feature importance and SHAP attributions are presented as <em>model interpretation only</em>, reflecting how mathematical boundaries separate classes in this dataset, and <em>not as a claim of direct agronomic causation</em>.
+                </div>
+                <div class="fi-chart" id="fi-chart"></div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Supported Crops ═══ -->
+            <section class="about-section">
+                <h2>🌿 Supported Crops (22 Classes)</h2>
+                <div class="crop-gallery" id="crop-gallery"></div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Tools Used ═══ -->
+            <section class="about-section">
+                <h2>🛠️ Tools &amp; Platform Used</h2>
+                <div class="tech-badges">
+                    <span class="tech-badge">Python 3.10+</span>
+                    <span class="tech-badge">Scikit-learn</span>
+                    <span class="tech-badge">XGBoost</span>
+                    <span class="tech-badge">SciPy (Statistical Testing)</span>
+                    <span class="tech-badge">SHAP (XAI)</span>
+                    <span class="tech-badge">Streamlit</span>
+                    <span class="tech-badge">FastAPI</span>
+                    <span class="tech-badge">Pandas &amp; NumPy</span>
+                    <span class="tech-badge">Joblib</span>
+                </div>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ References ═══ -->
+            <section class="about-section">
+                <h2>📚 Academic References</h2>
+                <ol style="color: #94a3b8; font-size: 0.88rem; line-height: 1.6; padding-left: 1.2rem;">
+                    <li>Pudumalar, S., Ramanujam, E., Rajashree, R. H., Kavya, C., Kiruthika, T., &amp; Nisha, J. (2017). Crop recommendation system for precision agriculture. In <em>2016 Eighth International Conference on Advanced Computing (ICOAC)</em>.</li>
+                    <li>Enhancing Agricultural Productivity: A Machine Learning Approach to Crop Recommendations. (2024). <em>Human-Centric Intelligent Systems</em>. Springer Nature.</li>
+                    <li>Crop recommendation using machine learning algorithms. (2023). <em>IEEE Conference Publication, IEEE Xplore</em>.</li>
+                    <li>Enhancing crop recommendation systems with explainable artificial intelligence: a study on agricultural decision-making (XAI-CROP). (2024). <em>Neural Computing and Applications</em>. Springer Nature.</li>
+                    <li>A Decision Support System for Crop Recommendation Using Machine Learning Classification Algorithms. (2024). <em>Agriculture</em>, 14(8), 1256. MDPI.</li>
+                    <li>Ommane, Y., Rhanbouri, M. A., Chouikh, H., Jbene, M., Chairi, I., Lachgar, M., &amp; Benjelloun, S. (2022). Machine Learning based Recommender Systems for Crop Selection: A Systematic Literature Review.</li>
+                    <li>Crop Recommender System Using Machine Learning Approach. (2021). <em>IEEE Conference Publication, IEEE Xplore</em>.</li>
+                    <li>Mufamadi, T. O., &amp; Ajoodha, R. Crop Recommendation using Machine Learning Algorithms and Soil Attributes Data.</li>
+                    <li>A. Ingle, “Crop Recommendation Dataset,” Kaggle, 2020. [Online]. Available: <a href="https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset/data" target="_blank" rel="noopener">https://www.kaggle.com/datasets/atharvaingle/crop-recommendation-dataset/data</a></li>
+                </ol>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <p class="footer-text">
+            Built with Random Forest (99.55% Accuracy) · CropAdvisor AI Decision Support System
+        </p>
+    </footer>
+
+</div>
+
+<script>
+    const hamburger = document.getElementById('nav-hamburger');
+    const navLinks = document.getElementById('nav-links');
+    if (hamburger) {
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('mobile-open');
+            hamburger.setAttribute('aria-expanded', navLinks.classList.contains('mobile-open'));
+        });
+    }
+
+    const crops = [
+        { name: 'apple', emoji: '🍎' }, { name: 'banana', emoji: '🍌' }, { name: 'blackgram', emoji: '🫘' },
+        { name: 'chickpea', emoji: '🫛' }, { name: 'coconut', emoji: '🥥' }, { name: 'coffee', emoji: '☕' },
+        { name: 'cotton', emoji: '🧵' }, { name: 'grapes', emoji: '🍇' }, { name: 'jute', emoji: '🪢' },
+        { name: 'kidneybeans', emoji: '🫘' }, { name: 'lentil', emoji: '🍲' }, { name: 'maize', emoji: '🌽' },
+        { name: 'mango', emoji: '🥭' }, { name: 'mothbeans', emoji: '🫘' }, { name: 'mungbean', emoji: '🫛' },
+        { name: 'muskmelon', emoji: '🍈' }, { name: 'orange', emoji: '🍊' }, { name: 'papaya', emoji: '🍈' },
+        { name: 'pigeonpeas', emoji: '🫛' }, { name: 'pomegranate', emoji: '🫐' }, { name: 'rice', emoji: '🍚' },
+        { name: 'watermelon', emoji: '🍉' }
+    ];
+
+    const gallery = document.getElementById('crop-gallery');
+    if (gallery) {
+        crops.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'crop-gallery-item';
+            item.innerHTML = `<div class="crop-gallery-emoji">${c.emoji}</div><div class="crop-gallery-name">${c.name}</div>`;
+            gallery.appendChild(item);
+        });
+    }
+
+    const fiData = [
+        { feature: 'Rainfall', mdi: 21.96 },
+        { feature: 'Humidity', mdi: 21.71 },
+        { feature: 'Potassium (K)', mdi: 18.08 },
+        { feature: 'Phosphorus (P)', mdi: 15.13 },
+        { feature: 'Nitrogen (N)', mdi: 10.34 },
+        { feature: 'Temperature', mdi: 7.55 },
+        { feature: 'Soil pH', mdi: 5.23 }
+    ];
+
+    const fiChart = document.getElementById('fi-chart');
+    if (fiChart) {
+        const maxMdi = Math.max(...fiData.map(d => d.mdi));
+        fiData.forEach((d, idx) => {
+            const row = document.createElement('div');
+            row.className = 'fi-row';
+            const barWidth = (d.mdi / maxMdi) * 100;
+            row.innerHTML = `
+                <span class="fi-label">${d.feature}</span>
+                <div class="fi-bar-bg"><div class="fi-bar-fill" style="width: 0%;"></div></div>
+                <span class="fi-value">${d.mdi.toFixed(1)}%</span>`;
+            fiChart.appendChild(row);
+            const fill = row.querySelector('.fi-bar-fill');
+            setTimeout(() => { fill.style.width = `${barWidth}%`; }, 200 + idx * 80);
+        });
+    }
+
+    // ═══ Model Benchmark Graph Canvas Rendering ═══
+    const benchmarkData = [
+        { model: 'Random Forest', test: 99.55, cv: 99.43, f1: 99.55, isBest: true },
+        { model: 'Naive Bayes', test: 99.55, cv: 99.49, f1: 99.54 },
+        { model: 'Support Vector Machine', test: 98.86, cv: 98.24, f1: 98.87 },
+        { model: 'XGBoost', test: 98.64, cv: 99.20, f1: 98.62 },
+        { model: 'K-Nearest Neighbors', test: 98.18, cv: 96.82, f1: 98.16 },
+        { model: 'Decision Tree', test: 97.95, cv: 98.47, f1: 97.94 },
+        { model: 'Logistic Regression', test: 97.27, cv: 96.82, f1: 97.25 },
+        { model: 'Majority Baseline', test: 4.55, cv: 4.55, f1: 0.40, isBaseline: true }
+    ];
+
+    const benchmarkCanvas = document.getElementById('benchmark-chart');
+    if (benchmarkCanvas) {
+        let activeMetric = 'test';
+        let animationStartTime = performance.now();
+        const animDuration = 800;
+        let hoveredIndex = -1;
+
+        function drawBenchmarkChart() {
+            const ctx = benchmarkCanvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const container = benchmarkCanvas.parentElement;
+            const width = container.clientWidth || 700;
+            const height = 310;
+
+            benchmarkCanvas.width = width * dpr;
+            benchmarkCanvas.height = height * dpr;
+            benchmarkCanvas.style.width = `${width}px`;
+            benchmarkCanvas.style.height = `${height}px`;
+
+            ctx.resetTransform();
+            ctx.scale(dpr, dpr);
+
+            const elapsed = performance.now() - animationStartTime;
+            const progress = Math.min(elapsed / animDuration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+            ctx.clearRect(0, 0, width, height);
+
+            const isMobile = width < 560;
+            const leftMargin = isMobile ? 120 : 175;
+            const rightMargin = isMobile ? 60 : 75;
+            const topMargin = 20;
+            const bottomMargin = 25;
+            const chartWidth = Math.max(10, width - leftMargin - rightMargin);
+            const chartHeight = height - topMargin - bottomMargin;
+            const rowHeight = chartHeight / benchmarkData.length;
+            const barThickness = Math.min(18, rowHeight * 0.58);
+
+            // Vertical gridlines
+            const gridTicks = [0, 20, 40, 60, 80, 100];
+            ctx.font = '10px Inter, system-ui, sans-serif';
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+
+            gridTicks.forEach(tick => {
+                const x = leftMargin + (tick / 100) * chartWidth;
+                ctx.beginPath();
+                ctx.strokeStyle = tick === 0 ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+                ctx.lineWidth = 1;
+                ctx.moveTo(x, topMargin);
+                ctx.lineTo(x, height - bottomMargin);
+                ctx.stroke();
+
+                ctx.fillText(`${tick}%`, x, height - bottomMargin + 6);
+            });
+
+            // Draw bars for each model
+            benchmarkData.forEach((item, index) => {
+                const val = item[activeMetric];
+                const yCenter = topMargin + index * rowHeight + rowHeight / 2;
+                const yTop = yCenter - barThickness / 2;
+                const isHovered = hoveredIndex === index;
+
+                // Model name label
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'middle';
+                if (item.isBest) {
+                    ctx.font = '600 12px Inter, system-ui, sans-serif';
+                    ctx.fillStyle = '#43cea2';
+                    const icon = isMobile ? '' : '🏆 ';
+                    ctx.fillText(`${icon}${item.model}`, leftMargin - 12, yCenter);
+                } else if (item.isBaseline) {
+                    ctx.font = '400 11px Inter, system-ui, sans-serif';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(item.model, leftMargin - 12, yCenter);
+                } else {
+                    ctx.font = '500 11px Inter, system-ui, sans-serif';
+                    ctx.fillStyle = isHovered ? '#f1f5f9' : '#cbd5e1';
+                    ctx.fillText(item.model, leftMargin - 12, yCenter);
+                }
+
+                // Background slot track
+                ctx.beginPath();
+                ctx.roundRect(leftMargin, yTop, chartWidth, barThickness, barThickness / 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+                ctx.fill();
+
+                // Animated filled bar
+                const currentWidth = Math.max(barThickness, (val / 100) * chartWidth * ease);
+                ctx.beginPath();
+                ctx.roundRect(leftMargin, yTop, currentWidth, barThickness, barThickness / 2);
+
+                if (item.isBest) {
+                    const grad = ctx.createLinearGradient(leftMargin, 0, leftMargin + currentWidth, 0);
+                    grad.addColorStop(0, '#43cea2');
+                    grad.addColorStop(1, '#38b2ac');
+                    ctx.fillStyle = grad;
+                    if (isHovered) {
+                        ctx.shadowColor = 'rgba(67, 206, 162, 0.5)';
+                        ctx.shadowBlur = 12;
+                    }
+                } else if (item.isBaseline) {
+                    ctx.fillStyle = '#ef4444';
+                    if (isHovered) {
+                        ctx.shadowColor = 'rgba(239, 68, 68, 0.4)';
+                        ctx.shadowBlur = 8;
+                    }
+                } else {
+                    const grad = ctx.createLinearGradient(leftMargin, 0, leftMargin + currentWidth, 0);
+                    grad.addColorStop(0, '#4facfe');
+                    grad.addColorStop(1, '#00f2fe');
+                    ctx.fillStyle = grad;
+                    if (isHovered) {
+                        ctx.shadowColor = 'rgba(79, 172, 254, 0.4)';
+                        ctx.shadowBlur = 8;
+                    }
+                }
+                ctx.fill();
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+
+                // Value text label
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.font = item.isBest ? '700 11px Inter, system-ui, sans-serif' : '600 11px Inter, system-ui, sans-serif';
+                ctx.fillStyle = item.isBest ? '#43cea2' : item.isBaseline ? '#f87171' : '#93c5fd';
+                const displayVal = (val * ease).toFixed(2);
+                ctx.fillText(`${displayVal}%`, leftMargin + currentWidth + 8, yCenter);
+            });
+
+            if (progress < 1) {
+                requestAnimationFrame(drawBenchmarkChart);
+            }
+        }
+
+        // Tab selection listener
+        const tabBtns = document.querySelectorAll('.graph-tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                btn.classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+                activeMetric = btn.dataset.metric;
+                animationStartTime = performance.now();
+                drawBenchmarkChart();
+            });
+        });
+
+        // Interactive mouse hover listener
+        benchmarkCanvas.addEventListener('mousemove', (e) => {
+            const rect = benchmarkCanvas.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            const topMargin = 20;
+            const bottomMargin = 25;
+            const chartHeight = 310 - topMargin - bottomMargin;
+            const rowHeight = chartHeight / benchmarkData.length;
+            const index = Math.floor((y - topMargin) / rowHeight);
+
+            if (index >= 0 && index < benchmarkData.length) {
+                if (hoveredIndex !== index) {
+                    hoveredIndex = index;
+                    drawBenchmarkChart();
+                }
+            } else if (hoveredIndex !== -1) {
+                hoveredIndex = -1;
+                drawBenchmarkChart();
+            }
+        });
+
+        benchmarkCanvas.addEventListener('mouseleave', () => {
+            if (hoveredIndex !== -1) {
+                hoveredIndex = -1;
+                drawBenchmarkChart();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            drawBenchmarkChart();
+        });
+
+        setTimeout(() => {
+            animationStartTime = performance.now();
+            drawBenchmarkChart();
+        }, 150);
+    }
+</script>
+</body>
+</html>

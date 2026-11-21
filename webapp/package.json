@@ -1,0 +1,12 @@
+{
+  "name": "cropadvisor-webapp",
+  "version": "1.0.0",
+  "description": "CropAdvisor FastAPI & Vanilla JS Web Application",
+  "scripts": {
+    "dev": "uvicorn backend.main:app --reload --port 8000",
+    "start": "uvicorn backend.main:app --host 0.0.0.0 --port 8000",
+    "test": "pytest tests/test_api.py"
+  },
+  "author": "Aryan Mishra",
+  "license": "MIT"
+}

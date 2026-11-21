@@ -1,0 +1,8 @@
+Competitor Model,RF Test Acc,Competitor Test Acc,RF 5-Fold CV,Competitor 5-Fold CV,CV Diff (RF - Other),Paired t-statistic,Paired t-test p-value,t-test Conclusion,RF+ / Other- (b),Other+ / RF- (c),McNemar Chi2,McNemar p-value,McNemar Conclusion
+Naive Bayes,0.9955,0.9955,0.9943,0.9949,-0.0006,-1.0,0.373901,Not Significant (p >= 0.05),1,1,0.5,1.0,Not Significant (p >= 0.05)
+Support Vector Machine,0.9955,0.9886,0.9943,0.9824,0.0119,4.8824,0.008147,Significant (p < 0.05),4,1,0.8,0.375,Not Significant (p >= 0.05)
+XGBoost,0.9955,0.9864,0.9943,0.992,0.0023,0.6667,0.54147,Not Significant (p >= 0.05),5,1,1.5,0.21875,Not Significant (p >= 0.05)
+K-Nearest Neighbors,0.9955,0.9818,0.9943,0.9682,0.0261,6.289,0.003266,Significant (p < 0.05),7,1,3.125,0.070312,Not Significant (p >= 0.05)
+Decision Tree,0.9955,0.9795,0.9943,0.9847,0.0097,2.2616,0.086523,Not Significant (p >= 0.05),7,0,5.1429,0.015625,Significant (p < 0.05)
+Logistic Regression,0.9955,0.9727,0.9943,0.9682,0.0261,5.7726,0.004471,Significant (p < 0.05),11,1,6.75,0.006348,Significant (p < 0.05)
+Majority Baseline,0.9955,0.0455,0.9943,0.0455,0.9489,399.2064,0.0,Significant (p < 0.05),418,0,416.0024,0.0,Significant (p < 0.05)

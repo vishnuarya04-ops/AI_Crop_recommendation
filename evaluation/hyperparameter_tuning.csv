@@ -1,0 +1,2 @@
+Model,Best Parameters,CV Best Score,Untuned Test Accuracy,Tuned Test Accuracy,Improvement
+Random Forest,"{'max_depth': None, 'max_features': 'sqrt', 'min_samples_split': 5, 'n_estimators': 200}",0.996023,0.995455,0.995455,0.0

@@ -1,0 +1,45 @@
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Node modules
+node_modules/
+package-lock.json
+
+# IDE files (allow sharing VS Code task & launch configs)
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs & temp
+*.log
+*.tmp
+.streamlit/credentials.toml
+
+# Environment variables
+.env
+.env.local

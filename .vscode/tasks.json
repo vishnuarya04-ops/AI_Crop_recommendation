@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run All (FastAPI + Streamlit)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/Scripts/python.exe run_all.py",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run FastAPI WebApp",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/Scripts/uvicorn webapp.backend.main:app --reload --port 8000",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Streamlit Portal",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/Scripts/streamlit run app.py --server.port 8501",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run Unit Tests",
+      "type": "shell",
+      "command": "${workspaceFolder}/.venv/Scripts/pytest webapp/tests/test_api.py -v",
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

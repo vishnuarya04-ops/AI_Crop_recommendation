@@ -1,0 +1,21 @@
+{
+  "name": "crop-recommendation-system",
+  "version": "1.0.0",
+  "description": "AI-Based Crop Recommendation Decision Support System",
+  "scripts": {
+    "dev": ".venv\\Scripts\\uvicorn webapp.backend.main:app --reload --port 8000",
+    "dev:all": ".venv\\Scripts\\python.exe run_all.py",
+    "dev:webapp": ".venv\\Scripts\\uvicorn webapp.backend.main:app --reload --port 8000",
+    "dev:streamlit": ".venv\\Scripts\\streamlit run app.py",
+    "test": ".venv\\Scripts\\pytest webapp/tests/test_api.py",
+    "start": ".venv\\Scripts\\uvicorn webapp.backend.main:app --host 0.0.0.0 --port 8000"
+  },
+  "keywords": [
+    "crop-recommendation",
+    "machine-learning",
+    "fastapi",
+    "streamlit"
+  ],
+  "author": "Aryan Mishra",
+  "license": "MIT"
+}

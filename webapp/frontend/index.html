@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered crop recommendation system. Enter soil and climate data to get the optimal crop with confidence scores. Powered by a Random Forest model with 99.55% accuracy.">
+    <meta name="theme-color" content="#0a1219">
+    <title>🌾 CropAdvisor — AI Crop Recommendation System</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<noscript>
+    <div class="noscript-banner" style="margin:2rem auto;max-width:600px;padding:2rem;text-align:center;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:12px;color:#fca5a5;font-family:sans-serif;">
+        ⚠️ JavaScript is required for this application. Please enable JavaScript in your browser settings and reload the page.
+    </div>
+</noscript>
+
+<div class="page-wrapper">
+
+    <!-- ═══ Navigation ═══ -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-brand" aria-label="Home">
+                <span class="navbar-brand-icon">🌾</span>
+                <span>CropAdvisor</span>
+            </a>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu" aria-expanded="false">☰</button>
+            <ul class="navbar-links" id="nav-links">
+                <li><a href="/" class="active">Recommend</a></li>
+                <li><a href="/analysis">Data Analysis</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/docs" target="_blank" rel="noopener">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+
+            <!-- ═══ Hero ═══ -->
+            <section class="hero">
+                <div class="hero-icon" aria-hidden="true">🌾</div>
+                <h1 class="hero-title">Crop Recommendation System</h1>
+                <p class="hero-subtitle">
+                    Enter your soil nutrient levels and climate conditions — the AI model
+                    will recommend the optimal crop with a confidence score.
+                </p>
+                <span class="hero-badge">🤖 Random Forest · 99.55% Accuracy · 22 Crops</span>
+            </section>
+
+            <hr class="divider">
+
+            <!-- ═══ Input Form ═══ -->
+            <form id="predict-form" novalidate>
+                <div class="card" style="margin-bottom: var(--s-lg);">
+
+                    <!-- Soil Nutrients -->
+                    <div class="section-header">
+                        <span class="section-header-icon" aria-hidden="true">🧪</span>
+                        <span>Soil Nutrients</span>
+                    </div>
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <label for="input-n" class="form-label">
+                                Nitrogen (N) <span class="form-label-unit">kg/ha</span>
+                                <span class="info-tooltip" aria-label="Nitrogen info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Ratio of nitrogen in soil. Key for leafy growth.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-n" name="N" class="form-input"
+                                   min="0" max="140" step="1" placeholder="0–140"
+                                   required aria-describedby="error-n">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-n"></div></div>
+                            <span class="form-error" id="error-n" role="alert"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-p" class="form-label">
+                                Phosphorus (P) <span class="form-label-unit">kg/ha</span>
+                                <span class="info-tooltip" aria-label="Phosphorus info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Ratio of phosphorus in soil. Essential for roots.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-p" name="P" class="form-input"
+                                   min="5" max="145" step="1" placeholder="5–145"
+                                   required aria-describedby="error-p">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-p"></div></div>
+                            <span class="form-error" id="error-p" role="alert"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-k" class="form-label">
+                                Potassium (K) <span class="form-label-unit">kg/ha</span>
+                                <span class="info-tooltip" aria-label="Potassium info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Ratio of potassium in soil. Boosts disease resistance.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-k" name="K" class="form-input"
+                                   min="5" max="205" step="1" placeholder="5–205"
+                                   required aria-describedby="error-k">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-k"></div></div>
+                            <span class="form-error" id="error-k" role="alert"></span>
+                        </div>
+                    </div>
+
+                    <!-- Climate Conditions -->
+                    <div class="section-header" style="margin-top: var(--s-xl);">
+                        <span class="section-header-icon" aria-hidden="true">🌤️</span>
+                        <span>Climate Conditions</span>
+                    </div>
+                    <div class="form-grid form-grid-2">
+                        <div class="form-group">
+                            <label for="input-temp" class="form-label">
+                                Temperature <span class="form-label-unit">°C</span>
+                                <span class="info-tooltip" aria-label="Temperature info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Average temperature during the growing season.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-temp" name="temperature" class="form-input"
+                                   min="8" max="44" step="0.1" placeholder="8–44"
+                                   required aria-describedby="error-temp">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-temp"></div></div>
+                            <span class="form-error" id="error-temp" role="alert"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-hum" class="form-label">
+                                Humidity <span class="form-label-unit">%</span>
+                                <span class="info-tooltip" aria-label="Humidity info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Relative humidity percentage in the growing area.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-hum" name="humidity" class="form-input"
+                                   min="14" max="100" step="0.1" placeholder="14–100"
+                                   required aria-describedby="error-hum">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-hum"></div></div>
+                            <span class="form-error" id="error-hum" role="alert"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid form-grid-2" style="margin-top: var(--s-md);">
+                        <div class="form-group">
+                            <label for="input-ph" class="form-label">
+                                Soil pH
+                                <span class="info-tooltip" aria-label="pH info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">pH value of the soil. 7 is neutral; lower is acidic.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-ph" name="ph" class="form-input"
+                                   min="3.5" max="10" step="0.01" placeholder="3.5–10.0"
+                                   required aria-describedby="error-ph">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-ph"></div></div>
+                            <span class="form-error" id="error-ph" role="alert"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-rain" class="form-label">
+                                Rainfall <span class="form-label-unit">mm</span>
+                                <span class="info-tooltip" aria-label="Rainfall info">
+                                    <span class="info-tooltip-icon">?</span>
+                                    <span class="info-tooltip-text">Annual rainfall in millimeters for the region.</span>
+                                </span>
+                            </label>
+                            <input type="number" id="input-rain" name="rainfall" class="form-input"
+                                   min="20" max="300" step="0.5" placeholder="20–300"
+                                   required aria-describedby="error-rain">
+                            <div class="range-indicator"><div class="range-indicator-fill" id="range-rain"></div></div>
+                            <span class="form-error" id="error-rain" role="alert"></span>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div style="margin-top: var(--s-xl);">
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            <span class="btn-text">🚀  Get Recommendation</span>
+                            <span class="spinner" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
+            <!-- ═══ Error Banner ═══ -->
+            <div class="error-banner" id="error-banner" role="alert"></div>
+
+            <!-- ═══ Results Section (hidden until prediction) ═══ -->
+            <section id="results-section" class="result-section" style="display:none;" aria-live="polite">
+
+                <!-- Primary Result -->
+                <div class="card card-accent result-primary">
+                    <div class="result-label">Recommended Crop</div>
+                    <div class="result-emoji" id="result-emoji"></div>
+                    <div class="result-crop-name" id="result-crop"></div>
+                    <div class="result-confidence" id="result-confidence"></div>
+                    <div class="confidence-bar-bg">
+                        <div class="confidence-bar-fill" id="result-bar"></div>
+                    </div>
+                    <div class="result-info" id="result-info"></div>
+
+                    <!-- Donut Chart -->
+                    <div class="donut-chart-container">
+                        <canvas id="donut-chart" width="220" height="220" aria-label="Top 3 crop probabilities chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- ═══ Soil Analysis Dashboard (NEW) ═══ -->
+                <div id="soil-analysis-section" style="margin-top: var(--s-xl);">
+
+                    <!-- Moisture & Fertility Row -->
+                    <div class="section-header">
+                        <span class="section-header-icon" aria-hidden="true">🧪</span>
+                        <span>Soil Analysis Dashboard</span>
+                    </div>
+
+                    <div class="soil-dashboard-grid">
+                        <!-- Moisture Card -->
+                        <div class="soil-card soil-card-moisture" id="moisture-card">
+                            <div class="soil-card-icon">💧</div>
+                            <div class="soil-card-title">Soil Moisture</div>
+                            <div class="soil-moisture-gauge">
+                                <svg viewBox="0 0 120 120" class="moisture-ring">
+                                    <circle cx="60" cy="60" r="50" class="moisture-ring-bg"/>
+                                    <circle cx="60" cy="60" r="50" class="moisture-ring-fill" id="moisture-ring-fill"/>
+                                </svg>
+                                <div class="moisture-ring-text" id="moisture-percentage">0%</div>
+                            </div>
+                            <div class="soil-moisture-level" id="moisture-level">—</div>
+                            <div class="soil-card-desc" id="moisture-desc">Enter soil data to see moisture analysis</div>
+                        </div>
+
+                        <!-- Fertility Score Card -->
+                        <div class="soil-card soil-card-fertility" id="fertility-card">
+                            <div class="soil-card-icon">🏆</div>
+                            <div class="soil-card-title">Fertility Score</div>
+                            <div class="fertility-gauge">
+                                <svg viewBox="0 0 120 120" class="fertility-ring">
+                                    <circle cx="60" cy="60" r="50" class="fertility-ring-bg"/>
+                                    <circle cx="60" cy="60" r="50" class="fertility-ring-fill" id="fertility-ring-fill"/>
+                                </svg>
+                                <div class="fertility-ring-text" id="fertility-score">0</div>
+                            </div>
+                            <div class="fertility-grade" id="fertility-grade">—</div>
+                            <div class="soil-card-desc" id="fertility-desc">Composite score based on NPK, pH, and moisture</div>
+                        </div>
+                    </div>
+
+                    <!-- Mineral Profile -->
+                    <div class="section-header" style="margin-top: var(--s-xl);">
+                        <span class="section-header-icon" aria-hidden="true">⚗️</span>
+                        <span>Mineral Profile</span>
+                    </div>
+                    <div class="mineral-grid" id="mineral-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- ═══ Crop Suitability & Planting Advisory (NEW) ═══ -->
+                <div id="suitability-section" style="margin-top: var(--s-xl);">
+                    <div class="section-header">
+                        <span class="section-header-icon" aria-hidden="true">🌱</span>
+                        <span>Should You Plant These Crops?</span>
+                    </div>
+                    <div id="suitability-cards">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Runner-ups -->
+                <div id="runner-ups-container" style="margin-top: var(--s-lg);">
+                    <div class="section-header">
+                        <span class="section-header-icon" aria-hidden="true">🥈</span>
+                        <span>Other Possibilities</span>
+                    </div>
+                    <div class="runner-ups" id="runner-ups"></div>
+                </div>
+
+                <!-- Probability Distribution -->
+                <div style="margin-top: var(--s-xl);">
+                    <div class="section-header">
+                        <span class="section-header-icon" aria-hidden="true">📊</span>
+                        <span>Probability Distribution</span>
+                    </div>
+                    <div class="prob-chart" id="prob-chart"></div>
+                </div>
+
+                <!-- Input Summary -->
+                <div class="input-summary" id="input-summary"></div>
+
+                <!-- New Prediction Button -->
+                <div class="btn-new-prediction">
+                    <button type="button" class="btn btn-secondary" id="new-prediction-btn">
+                        🔄  New Prediction
+                    </button>
+                </div>
+
+            </section>
+
+            <!-- ═══ Session History ═══ -->
+            <section class="history-section" id="history-section">
+                <hr class="divider">
+                <button class="history-toggle" id="history-toggle" aria-expanded="false">
+                    <span class="history-toggle-icon" aria-hidden="true">▶</span>
+                    <span>Session History</span>
+                    <span id="history-count" style="color: var(--c-text-dim); font-weight: 400; font-size: 0.8rem;"></span>
+                </button>
+                <div id="history-content" style="display:none;">
+                    <div style="display:flex; justify-content:flex-end; margin-bottom: var(--s-sm);">
+                        <button class="history-clear" id="history-clear">🗑️ Clear History</button>
+                    </div>
+                    <ul class="history-list" id="history-list"></ul>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <p class="footer-text">
+            Built with FastAPI &amp; Random Forest (99.55% accuracy) · CropAdvisor
+        </p>
+        <ul class="footer-links">
+            <li><a href="/about">About</a></li>
+            <li><a href="/docs" target="_blank" rel="noopener">API Docs</a></li>
+        </ul>
+    </footer>
+
+</div>
+
+<!-- Celebration overlay for confetti -->
+<div class="celebration-overlay" id="celebration-overlay" aria-hidden="true"></div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

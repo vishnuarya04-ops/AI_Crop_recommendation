@@ -1,0 +1,7 @@
+Model,0% Noise,5% Noise,10% Noise,15% Noise,20% Noise,25% Noise
+Random Forest,99.55,98.55,97.27,92.23,87.91,81.23
+XGBoost,98.64,93.95,90.09,82.27,77.09,71.0
+Support Vector Machine,98.86,99.14,98.82,97.55,95.18,92.59
+K-Nearest Neighbors,98.18,97.91,96.95,96.64,94.91,92.86
+Decision Tree,97.95,95.45,90.41,84.82,77.45,69.82
+Logistic Regression,97.27,96.95,96.82,95.73,93.18,90.05

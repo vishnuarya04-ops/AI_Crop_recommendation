@@ -1,0 +1,48 @@
+# Virtual environments
+.venv/
+__pycache__/
+*.pyc
+
+# Git
+.git/
+.gitignore
+
+# Notebooks (not needed at runtime)
+*.ipynb
+Phase*.ipynb
+
+# Training data (not needed at runtime)
+Crop_recommendation.csv
+X_train.csv
+X_test.csv
+y_train.csv
+y_test.csv
+
+# Evaluation artifacts
+evaluation/
+feature_importance/
+
+# Documentation
+*.md
+!webapp/README.md
+
+# Other model files (only random_forest is needed)
+models/decision_tree.joblib
+models/k_nearest_neighbors.joblib
+models/logistic_regression.joblib
+models/naive_bayes.joblib
+models/support_vector_machine.joblib
+models/xgboost.joblib
+models/all_predictions.joblib
+models/model_comparison_summary.csv
+
+# Tests (not needed in production image)
+webapp/tests/
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
